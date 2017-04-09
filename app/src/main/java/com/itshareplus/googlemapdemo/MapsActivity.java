@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.LocationManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -27,12 +29,18 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import android.util.Log;
 
 import Modules.DirectionFinder;
 import Modules.DirectionFinderListener;
 import Modules.Route;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, DirectionFinderListener {
+
+    public final static String TAG = "JAM_";
+
+    public LocationManager mLocationManager;
+    public LocationListener mLocationListener;
 
     private GoogleMap mMap;
     private Button btnFindPath;
@@ -89,7 +97,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng hcmus = new LatLng(10.762963, 106.682394);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(hcmus, 18));
         originMarkers.add(mMap.addMarker(new MarkerOptions()
-                .title("Đại học Khoa học tự nhiên")
+                .title("Current Location")
                 .position(hcmus)));
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -162,4 +170,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             polylinePaths.add(mMap.addPolyline(polylineOptions));
         }
     }
-}
+
+    protected void getLocation() {
+        Log.v(TAG, "GetLocation");
+        int LOCATION_REFRESH_TIME = 1000;
+        int LOCATION_REFRESH_DISTANCE = 5;
+
+            mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_REFRESH_TIME, LOCATION_REFRESH_DISTANCE, mLocationListener);
+        }
+
+    }
+
